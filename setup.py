@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 
 with open('requirements.txt') as f:
     requirements = [l.strip() for l in f]
@@ -12,9 +12,9 @@ setup(
     url='https://github.com/elijahcaine/hamper-wikibot',
     install_requires=requirements,
     package_data={'cah': ['requirements.txt', 'README.md', 'LICENSE']},
-    entry_points = {
+    entry_points={
         'hamperbot.plugins': [
             'wikibot = wikibot.wiki:WikiBot'
-        ]
-    }
+        ],
+    },
 )
