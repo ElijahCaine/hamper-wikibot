@@ -7,7 +7,7 @@ class WikiBot(ChatCommandPlugin):
     name = 'wikibot'
 
     class TestCommand(Command):
-        regex = 'wiki (.*)'
+        regex = 'wiki (.+)'
 
         def command(self, bot, comm, groups):
             """
