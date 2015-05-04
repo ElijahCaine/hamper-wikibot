@@ -11,7 +11,7 @@ setup(
     author_email='elijahcainemv@gmail.com',
     url='https://github.com/elijahcaine/hamper-wikibot',
     install_requires=requirements,
-    package_data={'cah': ['requirements.txt', 'README.md', 'LICENSE']},
+    package_data={'cah': ['requirements.txt', 'README.rst', 'LICENSE']},
     entry_points={
         'hamperbot.plugins': [
             'wikibot = wikibot.wiki:WikiBot'

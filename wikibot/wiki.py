@@ -28,13 +28,12 @@ class WikiBot(ChatCommandPlugin):
             p = json.loads(r.text)
             # pageid is needed to grab the info of a page, it's an api thing
             pageid = p['query']['pages'].keys()[0]
+            if pageid == '-1':
+                return (comm['user']+": I couldn't find an article for "+query)
             # extract is the top content of a given wiki page
             extract = p['query']['pages'][pageid]['extract']
             # generates psuedo-slugified url
             url = 'https://en.wikipedia.org/wiki/'+query.replace(' ','_')
             # if the article introduction is longer than 280 charcters it
             # shortens it so you don't get wikibot spam
-            try:
-                return (comm['user']+': '+extract[:280].replace(os.linesep,'\ ')+'[...] :: URL: '+url)
-            except:
-                return (comm['user']+': '+extract.replace(os.linesep,'\ ')+' :: URL: '+url)
+            return (comm['user']+': '+extract[:280].replace(os.linesep,'\ ')+'[...] :: URL: '+url)
