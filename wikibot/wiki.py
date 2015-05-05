@@ -23,9 +23,9 @@ class WikiBot(ChatCommandPlugin):
             """
             !wiki <query> -> wiki summary of <query>
 
-            Uses wikipedia api to grab the first <280 characters of <query>
-            article (or lets you know the query is ambigious) and appends a
-            clickable url at the end.
+            Uses wikipedia api to grab the first 250 or so characters of
+            `query` article (or lets you know the query is ambigious) and
+            appends a clickable url at the end.
             """
             query = groups[0]
 
@@ -52,9 +52,6 @@ class WikiBot(ChatCommandPlugin):
         def get_article_summary(self, query):
             """
             Get the summary of an article.
-
-            Uses wikipedia api to grab the first <280 characters of `query`
-            article and appends a clickable url at the end.
 
             Returns `None` if wikipedia returns no page for `query`.
             """
