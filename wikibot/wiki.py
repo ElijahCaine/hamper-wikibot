@@ -88,6 +88,6 @@ class WikiBot(ChatCommandPlugin):
                         `--long` -> prints entire summary of a given article :: \
                         `--help` -> prints out this help text :: \
                         All flags can be passed in addition to a search query \
-                        Null input is interpreted as '--help'
+                        Null input is interpreted as '--help'\
                         * Please be kind and do not spam the channel <3 *"
             return helptext
