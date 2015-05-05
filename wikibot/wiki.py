@@ -18,10 +18,10 @@ class WikiBot(ChatCommandPlugin):
 
             # Prints help if requested
             if 'help' in flags(query)[1]:
-                bot.reply(comm, (self.summary(query, comm)))
+                bot.reply(comm, self.print_helptext())
 
 
-        def summary(self, query, comm, bot):
+        def summary(self, query, comm):
             """Returns wikipedia summary of <query>
 
             Uses wikipedia api to grab the first <280 characters of <query>
