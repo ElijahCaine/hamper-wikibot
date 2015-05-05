@@ -3,10 +3,11 @@ import requests as re
 import json
 import os
 
+
 class WikiBot(ChatCommandPlugin):
     name = 'wikibot'
 
-    class TestCommand(Command):
+    class WikiSummaryCommand(Command):
         regex = 'wiki (.+)'
 
         def command(self, bot, comm, groups):
@@ -64,19 +65,20 @@ class WikiBot(ChatCommandPlugin):
             flag_list = []
 
             # add the help flag if it is requested
-            if '--help' in query :
+            if '--help' in query:
                 flag_list.append('help')
-                query = query.replace('--help','').replace('-h','')
-                
+                query = query.replace('--help', '').replace('-h', '')
+
             # add longprint flag if requested
             if '-long' in query or '-l' in query:
                 flag_list.append('long')
-                query = query.replace('--long','').replace('-l','')
+                query = query.replace('--long', '').replace('-l', '')
 
             return query, flag_list
 
-
         def print_helptext(self):
-            """Reutrns Wikibot Docstring"""
-            helptext = "Wikibot Plugin ::`--long` -> prints entire summary of a given article :: `--help` -> prints out this help text; overrides query :: *Please be kind and do not spam the channel <3*"
+            """Returns Wikibot Docstring"""
+            helptext = ("Wikibot Plugin ::`--long` -> prints entire summary of a given article "
+                        ":: `--help` -> prints out this help text; overrides query "
+                        ":: *Please be kind and do not spam the channel <3*")
             return helptext
