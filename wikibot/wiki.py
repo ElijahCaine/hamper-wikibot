@@ -72,7 +72,7 @@ class WikiBot(ChatCommandPlugin):
             # add the help flag if it is requested
             if '--help' in query :
                 flags.append('help')
-                query = query.replace('--help','').('-h','')
+                query = query.replace('--help','').replace('-h','')
                 
             # add longprint flag if requested
             if '-long' in query or '-l' in query:
