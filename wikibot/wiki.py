@@ -1,11 +1,20 @@
 from hamper.interfaces import ChatCommandPlugin, Command
-import requests as re
-import json
+import requests
 import os
 
 
 class WikiBot(ChatCommandPlugin):
     name = 'wikibot'
+    api_base_url = 'https://en.wikipedia.org/w/api.php'
+
+    def _api_call(self, **kwargs):
+        """Make an API call to Wikipedia, and returned the data returned."""
+        params = {
+            'format': 'json',
+        }
+        params.update(kwargs)
+        r = requests.get(self.api_base_url, params=params)
+        return r.json()
 
     class WikiSummaryCommand(Command):
         regex = 'wiki (.+)'
@@ -13,17 +22,41 @@ class WikiBot(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             """
             !wiki <query> -> wiki summary of <query>
-            """
-            query = groups[0]
-            bot.reply(comm, (self.summary(query, comm)))
-
-
-        def summary(self, query, comm):
-            """Returns wikipedia summary of <query>
 
             Uses wikipedia api to grab the first <280 characters of <query>
             article (or lets you know the query is ambigious) and appends a
             clickable url at the end.
+            """
+            query = groups[0]
+
+            # Generates list of flags and strips out said flags from input
+            query, flag_list = self.flags(query)
+
+            if 'help' in flag_list:
+                return self.print_helptext()
+
+            # Generates psuedo-slugified url
+            url = 'https://en.wikipedia.org/wiki/' + query.replace(' ', '_')
+
+            # Get the article summary
+            summary = self.get_article_summary(query)
+            if summary is None:
+                bot.reply(comm, "{user}: I couldn't find an article for {query}",
+                          kwvars={'query': query})
+                return
+
+            # Done!
+            bot.reply(comm, '{user}: {summary} :: URL: {url}',
+                      kwvars={'summary': summary, 'url': url})
+
+        def get_article_summary(self, query):
+            """
+            Get the summary of an article.
+
+            Uses wikipedia api to grab the first <280 characters of `query`
+            article and appends a clickable url at the end.
+
+            Returns `None` if wikipedia returns no page for `query`.
             """
             # Generates list of flags and strips out said flags from input
             query, flag_list = self.flags(query)
@@ -31,30 +64,27 @@ class WikiBot(ChatCommandPlugin):
             if 'help' in flag_list:
                 return self.print_helptext()
 
-            # Makes the api call
-            r = re.get('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles='+query)
+            page_data = self.plugin._api_call(
+                    action='query',
+                    redirects=True,    # Include data about article redirects
+                    prop='extracts',   # Return an extract of the page.
+                    exintro=True,      # Only include the intro (before the first section)
+                    explaintext=True,  # "Ex[tracts] plaintext.
+                    exchars=250,       # Maximum of about 250 characters (Sometimes longer)
+                    titles=query)
 
-            # Loads r.text into an object
-            p = json.loads(r.text)
+            if page_data.get('redirects', None):
+                return self.get_article_summary(page_data['redirects'][0]['to'])
 
             # Pageid is needed to grab the info of a page, it's an api thing
-            pageid = p['query']['pages'].keys()[0]
-            if pageid == '-1':
-                return (comm['user']+": I couldn't find an article for "+query)
+            pageid = page_data['query']['pages'].keys()[0]
+            if pageid == -1:
+                return None
 
-            # Extract is the top content of a given wiki page
-            extract = p['query']['pages'][pageid]['extract']
-
-            # Generates psuedo-slugified url
-            url = 'https://en.wikipedia.org/wiki/'+query.replace(' ','_')
-
-            # If the article introduction is longer than 280 charcters it
-            # shortens it so you don't get wikibot spam
-            if 'long' in flag_list:
-                return (comm['user']+': '+extract.replace(os.linesep,'\ ')+'[...] :: URL: '+url)
-            else:
-                return (comm['user']+': '+extract[:280].replace(os.linesep,'\ ')+'[...] :: URL: '+url)
-
+            # `extract` is the top content of a given wiki page
+            summary = page_data['query']['pages'][pageid]['extract']
+            summary = summary.replace(os.linesep, ' ')
+            return summary
 
         def flags(self, query):
             """Returns a modified query and list of flags
