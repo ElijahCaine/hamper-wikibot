@@ -16,10 +16,6 @@ class WikiBot(ChatCommandPlugin):
             query = groups[0]
             bot.reply(comm, (self.summary(query, comm)))
 
-            # Prints help if requested
-            if 'help' in flags(query)[1]:
-                bot.reply(comm, self.print_helptext())
-
 
         def summary(self, query, comm):
             """Returns wikipedia summary of <query>
@@ -29,7 +25,10 @@ class WikiBot(ChatCommandPlugin):
             clickable url at the end.
             """
             # Generates list of flags and strips out said flags from input
-            query, flags = flags(query)
+            query, flag_list = self.flags(query)
+
+            if 'help' in flag_list:
+                return self.print_helptext()
 
             # Makes the api call
             r = re.get('https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles='+query)
@@ -50,44 +49,34 @@ class WikiBot(ChatCommandPlugin):
 
             # If the article introduction is longer than 280 charcters it
             # shortens it so you don't get wikibot spam
-            if 'long' in flags:
+            if 'long' in flag_list:
                 return (comm['user']+': '+extract.replace(os.linesep,'\ ')+'[...] :: URL: '+url)
             else:
                 return (comm['user']+': '+extract[:280].replace(os.linesep,'\ ')+'[...] :: URL: '+url)
 
 
-        def flags(query):
+        def flags(self, query):
             """Returns a modified query and list of flags
 
             Takes a search query and returns a list of flags as well as the
             query stripped of it's query text.
             """
-            flags = []
-
-            # print helptext and return if no search query is passed
-            if query is None:
-                flags.append('help')
-                return query, flags
+            flag_list = []
 
             # add the help flag if it is requested
             if '--help' in query :
-                flags.append('help')
+                flag_list.append('help')
                 query = query.replace('--help','').replace('-h','')
                 
             # add longprint flag if requested
             if '-long' in query or '-l' in query:
-                flags.append('long')
+                flag_list.append('long')
                 query = query.replace('--long','').replace('-l','')
 
-            return query, flags
+            return query, flag_list
 
 
-        def print_helptext():
+        def print_helptext(self):
             """Reutrns Wikibot Docstring"""
-            helptext = "Wikibot Plugin :: \
-                        `--long` -> prints entire summary of a given article :: \
-                        `--help` -> prints out this help text :: \
-                        All flags can be passed in addition to a search query \
-                        Null input is interpreted as '--help'\
-                        * Please be kind and do not spam the channel <3 *"
+            helptext = "Wikibot Plugin ::`--long` -> prints entire summary of a given article :: `--help` -> prints out this help text; overrides query :: *Please be kind and do not spam the channel <3*"
             return helptext
