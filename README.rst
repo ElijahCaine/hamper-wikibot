@@ -7,7 +7,9 @@ or on your computer. then run:
 
 .. code:: bash
 
-    pip install git+https://github.com/johnsdea/hamper-poll.git
+    pip install git+https://github.com/ElijahCaine/hamper-wikibot.git
+    or
+    pip install https://github.com/ElijahCaine/hamper-wikibot/archive/master.zip
 
 
 .. _Hamper: https://github.com/hamperbot/hamper
