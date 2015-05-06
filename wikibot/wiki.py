@@ -45,6 +45,11 @@ class WikiBot(ChatCommandPlugin):
                           kwvars={'query': query})
                 return
 
+            if 'may refer to' in summary:
+                bot.reply(comm, "{user}: Your query '{query}' was too ambigious.",
+                          kwvars={'query': query})
+                return
+
             # Done!
             bot.reply(comm, '{user}: {summary} :: URL: {url}',
                       kwvars={'summary': summary, 'url': url})
@@ -96,16 +101,10 @@ class WikiBot(ChatCommandPlugin):
                 flag_list.append('help')
                 query = query.replace('--help', '').replace('-h', '')
 
-            # add longprint flag if requested
-            if '-long' in query or '-l' in query:
-                flag_list.append('long')
-                query = query.replace('--long', '').replace('-l', '')
-
             return query, flag_list
 
         def print_helptext(self):
             """Returns Wikibot Docstring"""
-            helptext = ("Wikibot Plugin ::`--long` -> prints entire summary of a given article "
-                        ":: `--help` -> prints out this help text; overrides query "
+            helptext = ("Wikibot Plugin :: `--help` -> prints out this help text; overrides query "
                         ":: *Please be kind and do not spam the channel <3*")
             return helptext
